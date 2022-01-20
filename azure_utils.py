@@ -61,13 +61,13 @@ def upload_blobs(files,connection_string,container_name):
 
 
 def delete_blobs(connection_string,container_name):
-    """upload a list of files to the blob storage
+    """delete files from blob storage
 
     Args:
-        files (list): list of filenames. Tipically obtained from function get_files.
         connection_string (str): Azure connection string
-         container_name (str): name of the container from the azure storage account, where files will be uploaded
+        container_name (str): name of the container from the azure storage account, where files will be uploaded
     """
+    
     container_client = ContainerClient.from_connection_string(connection_string,container_name)
     print("Deleting files from blob storage")
     blob_list = container_client.list_blobs()
@@ -390,7 +390,7 @@ def create_vm(resource_group_name,location,compute_client,nic_result,
                 vm_name,vm_size,username,password):
     
     print()
-    print(f"Provisioning manager virtual machine {vm_name}; this operation might take a few minutes.")
+    print(f"Provisioning virtual machine {vm_name}; this operation might take a few minutes.")
 
     # Provision the VM
 
