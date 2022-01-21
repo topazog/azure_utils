@@ -2,7 +2,7 @@
 Azure utils to run pest_hp or pestpp_ies in the Azure cloud
 
 
-Azure_utils.py is a group of function that allow us to upload and run model in Azure cloud. It depends on several existing azure SDK libraries and on being logged in to an Azure account through powershell.
+Azure_utils.py is a group of functions that allow us to upload and run model in Azure cloud. It depends on several existing azure SDK libraries and on being logged in to an Azure account through powershell.
 
 **Install Azure CLI**
 
