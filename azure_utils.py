@@ -78,7 +78,7 @@ def gen_hpmanager_script(local_dir,storage_account_name,
                     container_name,
                     connection_string,
                     pst_filename,
-                    port,hpmanager_script_name,exe_name=None,restart=False):
+                    port,hpmanager_script_name,exe_name=None,restart=False, hpstart=False):
     """generates a powershell script to copy files from a azure blob storage to the manager VM
        and deploy PEST_HP
 
@@ -130,13 +130,18 @@ def gen_hpmanager_script(local_dir,storage_account_name,
         if exe_name != None:
             if restart:
                 f.write(f'cmd.exe /c {exe_name} {pst_filename} /h /s :{port}\n')
+            elif hpstart:
+                f.write(f'cmd.exe /c {exe_name} {pst_filename} /hpstart /h :{port}\n') 
             else:
                 f.write(f'cmd.exe /c {exe_name} {pst_filename} /h :{port}\n')
         else:
             if restart:
                 f.write(f'cmd.exe /c pest_hp.exe {pst_filename} /h /s :{port}\n')
+            elif hpstart:
+                f.write(f'cmd.exe /c pest_hp.exe {pst_filename} /hpstart /h :{port}\n')  
             else:
                 f.write(f'cmd.exe /c pest_hp.exe {pst_filename} /h :{port}\n')
+
         #if exe_name == None:
         #    f.write("$CMD = $localTargetDirectory+'\\'+'pest_hp.exe'\n")
         #else:
