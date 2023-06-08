@@ -3,6 +3,7 @@
 import os
 import yaml
 from azure.storage.blob import ContainerClient
+from azure.storage.blob import BlobServiceClient
 from azure.identity import AzureCliCredential
 from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.network.models import NetworkSecurityGroup
@@ -67,11 +68,14 @@ def delete_blobs(connection_string,container_name):
         connection_string (str): Azure connection string
         container_name (str): name of the container from the azure storage account, where files will be uploaded
     """
-    
     container_client = ContainerClient.from_connection_string(connection_string,container_name)
     print("Deleting files from blob storage")
     blob_list = container_client.list_blobs()
-    container_client.delete_blobs(*blob_list)
+    batch_size = 100
+    batches = [blob_list[i:i + batch_size] for i in range(0, len(blob_list), batch_size)]
+
+    for batch in batches:
+        container_client.delete_blobs(*batch)
 
 
 def gen_hpmanager_script(local_dir,storage_account_name,
