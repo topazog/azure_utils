@@ -70,11 +70,18 @@ def delete_blobs(connection_string,container_name):
     """
     container_client = ContainerClient.from_connection_string(connection_string,container_name)
     print("Deleting files from blob storage")
-    blob_list = container_client.list_blobs()
-    batch_size = 100
-    batches = [blob_list[i:i + batch_size] for i in range(0, len(blob_list), batch_size)]
 
-    for batch in batches:
+    blobs = container_client.list_blobs()
+    batch = []
+    batch_size = 100
+    
+    for blob in blobs:
+        batch.append(blob.name)
+        if len(batch) >= batch_size:
+            container_client.delete_blobs(*batch)
+            batch.clear()
+    
+    if batch:
         container_client.delete_blobs(*batch)
 
 
