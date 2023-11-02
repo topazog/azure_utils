@@ -1,0 +1,9 @@
+README.md
+setup.py
+azure_utils/__init__.py
+azure_utils/azure_utils.py
+mypythonlib.egg-info/PKG-INFO
+mypythonlib.egg-info/SOURCES.txt
+mypythonlib.egg-info/dependency_links.txt
+mypythonlib.egg-info/requires.txt
+mypythonlib.egg-info/top_level.txt

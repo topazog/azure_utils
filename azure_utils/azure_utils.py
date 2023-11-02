@@ -9,6 +9,7 @@ from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.network.models import NetworkSecurityGroup
 from azure.mgmt.network.models import SecurityRule
 from azure.mgmt.compute import ComputeManagementClient
+from azure.mgmt.resource import ResourceManagementClient
 
 def load_config(dir):
     """load configuration information from a config.yaml file
@@ -565,3 +566,41 @@ def delete_vm(resource_group_name,compute_client,vm_name):
     print()
     print(f"Deleted virtual machine {vm_name}")
 
+def create_resource_group(resource_group_name,location,subscription_id):
+    """create a resource group
+
+    Args:
+        resource_group_name (str): azure resource group name
+        location (str): location of the resource group
+        subscription_id (str): azure subscription id
+    """
+
+    # Obtain the management object for networks
+    credential = AzureCliCredential()
+    resource_client = ResourceManagementClient(credential, subscription_id)
+
+    # Provision the resource group
+    rg_result = resource_client.resource_groups.create_or_update(resource_group_name,
+        {
+            "location": location
+        }
+    )
+
+    print(f"Provisioned resource group {rg_result.name} in the {rg_result.location} region")
+
+def delete_resource_group(resource_group_name,subscription_id):
+    """delete a resource group
+
+    Args:
+        resource_group_name (str): azure resource group name
+        subscription_id (str): azure subscription id
+    """
+
+    # Obtain the management object for networks
+    credential = AzureCliCredential()
+    resource_client = ResourceManagementClient(credential, subscription_id)
+
+    # Provision the resource group
+    rg_result = resource_client.resource_groups.begin_delete(resource_group_name)
+
+    print(f"Deleted resource group {rg_result.name}")
