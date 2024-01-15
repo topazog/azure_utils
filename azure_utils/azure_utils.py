@@ -91,7 +91,7 @@ def gen_hpmanager_script(local_dir,storage_account_name,
                     container_name,
                     connection_string,
                     pst_filename,
-                    port,hpmanager_script_name,exe_name=None,restart=False, hpstart=False):
+                    port,hpmanager_script_name,exe_name=None,restart=False, hpstart=False,zipped=False):
     """generates a powershell script to copy files from a azure blob storage to the manager VM
        and deploy PEST_HP
 
@@ -114,6 +114,7 @@ def gen_hpmanager_script(local_dir,storage_account_name,
         f.write('\n')
         f.write('Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force\n')
         f.write('Install-Module Az.Storage -Force\n')
+        f.write('Install-Module -Name 7Zip4Powershell -RequiredVersion 2.2.0 -Force\n')
         f.write('\n')
         f.write('# Storage account name and Container name\n')
         f.write("$StorageAccountName = '"+storage_account_name+"'\n")
@@ -135,6 +136,8 @@ def gen_hpmanager_script(local_dir,storage_account_name,
         f.write('$filenames | ForEach-Object {\n')
         f.write("    $filepath = $localTargetDirectory+'\\'+$_.Name\n")
         f.write('    Get-AzStorageBlobContent -Blob $_.Name -Container $ContainerName -Destination $filepath -Context $Ctx\n')
+        if zipped:
+            f.write('    Expand-7Zip -ArchiveFileName $filepath -TargetPath $localTargetDirectory\n')
         f.write('}\n')
         f.write('\n')
         f.write('NetSh Advfirewall set allprofiles state off\n')
@@ -172,7 +175,7 @@ def gen_hpagent_script(local_dir,storage_account_name,
                     vm_cores,
                     pst_filename,
                     ip_address,
-                    port,hpagent_script_name,exe_name=None):
+                    port,hpagent_script_name,exe_name=None,zipped=False):
     """generates a powershell script to copy files from a azure blob storage to an agent VM
        and deploy PEST_HP
 
@@ -196,6 +199,7 @@ def gen_hpagent_script(local_dir,storage_account_name,
         f.write('Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force\n')
         f.write('Install-Module Az.Storage -Force\n')
         f.write('\n')
+        f.write('Install-Module -Name 7Zip4Powershell -RequiredVersion 2.2.0 -Force\n')
         f.write('# Storage account name and Container name\n')
         f.write("$StorageAccountName = '"+storage_account_name+"'\n")
         f.write("$ContainerName = '"+container_name+"'\n")
@@ -218,6 +222,8 @@ def gen_hpagent_script(local_dir,storage_account_name,
         for icore in range(vm_cores):
             f.write(f"    $filepath{str(icore+1)} = $localTargetDirectory{str(icore+1)}+'\\'+$_.Name\n")
             f.write(f'    Get-AzStorageBlobContent -Blob $_.Name -Container $ContainerName -Destination $filepath{str(icore+1)} -Context $Ctx\n')
+            if zipped:
+                f.write(f'    Expand-7Zip -ArchiveFileName $filepath{str(icore+1)} -TargetPath $localTargetDirectory{str(icore+1)}\n')
         f.write('}\n')
         f.write('\n')
         f.write('NetSh Advfirewall set allprofiles state off\n')
@@ -283,8 +289,8 @@ def create_vnet(network_client,resource_group_name,location,virtual_network_name
     """
 
     # Provision the virtual network and wait for completion
-    #poller = network_client.virtual_networks.begin_create_or_update(resource_group_name,
-    poller = network_client.virtual_networks.create_or_update(resource_group_name,
+    poller = network_client.virtual_networks.begin_create_or_update(resource_group_name,
+    #poller = network_client.virtual_networks.create_or_update(resource_group_name,
         virtual_network_name,
         {
             "location": location,
@@ -641,3 +647,9 @@ def create_storage_account(resource_group_name,location,storage_account_name,sub
 
     account_result = poller.result()
     print(f"Provisioned storage account {account_result.name}")
+
+def create_blob_container(self, blob_service_client: BlobServiceClient, container_name):
+    try:
+        container_client = blob_service_client.create_container(name=container_name)
+    except ResourceExistsError:
+        print('A container with this name already exists')

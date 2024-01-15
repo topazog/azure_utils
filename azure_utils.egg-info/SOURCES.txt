@@ -1,9 +1,0 @@
-README.md
-setup.py
-azure_utils/__init__.py
-azure_utils/azure_utils.py
-azure_utils.egg-info/PKG-INFO
-azure_utils.egg-info/SOURCES.txt
-azure_utils.egg-info/dependency_links.txt
-azure_utils.egg-info/requires.txt
-azure_utils.egg-info/top_level.txt

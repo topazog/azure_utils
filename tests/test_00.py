@@ -20,5 +20,10 @@ azure_utils.create_resource_group(resource_group_name, location, subscription_id
 #create storage account
 azure_utils.create_storage_account(resource_group_name,location,storage_account_name,subscription_id)
 
+#create blob container
+azure_utils.create_blob_container(resource_group_name,storage_account_name,subscription_id)
+
+#create container
+
 #delete resource group
 azure_utils.delete_resource_group(resource_group_name, subscription_id)
