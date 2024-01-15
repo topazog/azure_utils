@@ -10,6 +10,7 @@ from azure.mgmt.network.models import NetworkSecurityGroup
 from azure.mgmt.network.models import SecurityRule
 from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.resource import ResourceManagementClient
+from azure.mgmt.storage import StorageManagementClient
 
 def load_config(dir):
     """load configuration information from a config.yaml file
@@ -596,11 +597,66 @@ def delete_resource_group(resource_group_name,subscription_id):
         subscription_id (str): azure subscription id
     """
 
-    # Obtain the management object for networks
+    # Obtain the credentials and create the resource_client
     credential = AzureCliCredential()
     resource_client = ResourceManagementClient(credential, subscription_id)
 
-    # Provision the resource group
-    rg_result = resource_client.resource_groups.begin_delete(resource_group_name)
+    # Delete the resource group
+    rg_list = resource_client.resource_groups.list()
 
-    print(f"Deleted resource group {rg_result.name}")
+    if resource_group_name in [rg.name for rg in rg_list]: 
+        resource_client.resource_groups.begin_delete(resource_group_name)
+        print(f"Deleted resource group {resource_group_name}")
+    else:
+        print(f"Resource group {resource_group_name} not found")
+
+def create_storage_account(resource_group_name,location,storage_account_name,subscription_id):
+    """create a storage account
+
+    Args:
+        resource_group_name (str): azure resource group name
+        storage_account_name (str): name of the storage account
+        subscription_id (str): azure subscription id
+    """
+
+    # Obtain the credential and create a 
+    credential = AzureCliCredential()
+    storage_client = StorageManagementClient(credential, subscription_id)
+
+    # Provision the storage account
+    poller = storage_client.storage_accounts.begin_create(resource_group_name, storage_account_name,
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "location" : location,
+            "kind": "StorageV2",
+            "sku": {"name": "Standard_RAGRS",
+                    "tier": "Standard"},
+            "properties": {
+                "minimumTlsVersion": "TLS1_2",
+                "allowBlobPublicAccess": True,
+                "allowSharedKeyAccess": False,
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"},
+                "supportsHttpsTrafficOnly": True,
+                "encryption": {
+                "services": {
+                    "file": {
+                        "KeyType": "Account",
+                        "enabled": True}},
+                "keySource": "Microsoft.Storage"},
+        "accessTier": "Hot",
+        "deleteRetentionPolicy": {
+            "enabled": True,
+            "days": 7,
+            "allowPermanentDelete": True},
+        "isVersioningEnabled": False,
+        }
+        }
+    )
+
+    account_result = poller.result()
+    print(f"Provisioned storage account {account_result.name}")

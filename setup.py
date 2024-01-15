@@ -4,7 +4,7 @@ setup(
     name='azure_utils',
     packages=find_packages(include=['azure_utils']),
     version='0.1.0',
-    description='My first Python library',
+    description='Azure utils to deploy parameter estimation in the cloud',
     author='T.Opazo',
     install_requires=['azure-identity==1.11.0',
                       'azure-common==1.1.28',
