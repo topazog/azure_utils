@@ -125,7 +125,7 @@ def gen_hpmanager_script(local_dir,storage_account_name,
         f.write('$Ctx = New-AzStorageContext -ConnectionString $ConnectionString\n')
         f.write('\n')
         f.write('#Destination Path\n')
-        f.write("$localTargetDirectory = 'C:\PEST'\n")
+        f.write("$localTargetDirectory = 'D:\PEST'\n")
         f.write('\n')
         f.write('if(!(Test-Path $localTargetDirectory -Verbose)){\n')
         f.write('    New-Item -ItemType directory -Path $localTargetDirectory -Force -Verbose\n')
@@ -210,7 +210,7 @@ def gen_hpagent_script(local_dir,storage_account_name,
         f.write('\n')
         f.write('#Destination Path\n')
         for icore in range(vm_cores):
-            f.write(f"$localTargetDirectory{str(icore+1)} = 'C:\PEST{str(icore+1)}'\n")
+            f.write(f"$localTargetDirectory{str(icore+1)} = 'D:\PEST{str(icore+1)}'\n")
             f.write(f'if(!(Test-Path $localTargetDirectory{str(icore+1)} -Verbose))')
             f.write('{\n')
             f.write(f'    New-Item -ItemType directory -Path $localTargetDirectory{str(icore+1)} -Force -Verbose\n')
